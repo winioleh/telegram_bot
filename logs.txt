@@ -1,0 +1,26 @@
+
+FUNCTION: handle_file
+ERROR: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\user\\Pycharm projects\\hypoprice/imgs/AgADAgADnKgxG0cUOUpWbBuM0x_RyNcXnA4ABPAQ45SuHEsEMEoDAAEC_391727814.png'
+TIME: 2018-04-10 10:47:23.820024
+END FUNCTION
+
+FUNCTION: handle_file
+ERROR: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\user\\Pycharm projects\\hypoprice/imgs/AgADAgADnKgxG0cUOUpWbBuM0x_RyNcXnA4ABPAQ45SuHEsEMEoDAAEC_391727814.png'
+TIME: 2018-04-10 10:47:29.816797
+END FUNCTION
+
+FUNCTION: handle_file
+ERROR: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\user\\Pycharm projects\\hypoprice/imgs/AgADAgADiagxGwlLYUrz-f5Llr-0N_Bkqw4ABLcvg6FCKmkRyoUAAgI_391727814.png'
+TIME: 2018-04-10 10:49:48.692114
+END FUNCTION
+
+FUNCTION: handle_file
+ERROR: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\user\\Pycharm projects\\hypoprice/imgs/AgADAgADiagxGwlLYUrz-f5Llr-0N_Bkqw4ABLcvg6FCKmkRyoUAAgI_391727814.png'
+TIME: 2018-04-10 10:49:50.801891
+END FUNCTION
+
+FUNCTION: handle_file
+ERROR: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл занят другим процессом: 'C:\\Users\\user\\Pycharm projects\\hypoprice/imgs/AgADAgADiagxGwlLYUrz-f5Llr-0N_Bkqw4ABLcvg6FCKmkRyoUAAgI_391727814.png'
+TIME: 2018-04-10 10:52:59.937773
+END FUNCTION
+
