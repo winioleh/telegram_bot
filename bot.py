@@ -17,19 +17,70 @@ from mixpanel import Mixpanel
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-
 bot = telebot.TeleBot(TOKEN)
 telebot.logger.setLevel(logging.DEBUG)
 
 logger = Logger()
 basket_list = []
-
 mp = Mixpanel(MIX)
 
+location_message = None
+
+# JUST RETURN MARKUP
 def get_update_markup(id):
     keyboard = types.InlineKeyboardMarkup()
     keyboard.add(types.InlineKeyboardButton(text="Оновити", callback_data=id))
     return keyboard
+
+# HANDEL ALL UPDATE QUERY
+@bot.callback_query_handler(func=lambda c: True)
+def inline(call):
+    print("INLINE")
+    for result in get_user_results(call.message.chat.id):
+        # CHECK IF ID IS RIGHT
+        if call.data == result[0]:
+            print("BARCODE")
+            res_str = ""
+
+            res_str = 'Ціни на обрану корзину: ('
+
+            # FROM BARCODE TO PRICE
+            for barcode in barcode_with_result(call.data):
+
+                product = tmp_geting_data(barcode[1])
+                product_name = product['product_name']
+
+                # FIXME: FOR LARGE LIST
+                # ANCIENT MAGIC ????
+                res_str += product_name[17:-14] + ' '
+
+            res_str += ')' + '\n'
+
+            for barcode in barcode_with_result(call.data):
+                product = tmp_geting_data(barcode[1])
+                price_list = product['price_list']
+
+                # FIXME: FOR LARGE LIST
+                for price in price_list:
+                    # FIXME: REWRITE WITH %
+                    res_str += price["name"] + ' - ' + price["price"] + "\n"
+
+
+            # FIXME: RENAME RES_STR TO NEW MESSAGE
+            new_message = res_str
+            print(call.message.text)
+            print(new_message)
+            print(set(call.message.text.split(' ')) == set(new_message.split(' ')))
+
+
+            if not (call.message.text is new_message):
+                bot.edit_message_text(chat_id=call.message.chat.id,
+                                      message_id=call.message.message_id, text=new_message,
+                                      reply_markup=get_update_markup(call.data))
+            else:
+                bot.answer_callback_query(call.id)
+
+    bot.answer_callback_query(call.id)
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
@@ -45,8 +96,12 @@ def handle_info(message):
 @bot.message_handler(content_types=['location'])
 def handle_location(message):
     try:
-        global location_massege
-        location_massege = message
+        # TODO: TEST FOR MULTI USERS !!!
+        # FIXME: HIDDEN BUG ?
+        global location_message
+        # FIXME: HIDDEN BUG ?
+
+        location_message = message
         longitude = message.location.longitude
         latitude = message.location.latitude
         markup = types.ReplyKeyboardMarkup()
@@ -57,7 +112,6 @@ def handle_location(message):
             'u_name': message.from_user.first_name + ' ' + message.from_user.last_name,
             'longitude': message.location.longitude,
             'latitude': message.location.latitude
-
         })
         return (longitude, latitude)
 
@@ -97,7 +151,7 @@ def compare_price(message):
     #     bot.send_message(message.chat.id, u"Загрузуть фото штрих-коду", reply_markup=markup)
     mp.track(message.chat.id, 'Compare price', {
         'u_id': message.from_user.id,
-        'u_name': message.from_user.first_name + ' ' + message.from_user.last_name,
+        'u_name': str(message.from_user.first_name) + ' ' + str(message.from_user.last_name),
         # 'longitude': message.location.longitude,
         # 'latitude': message.location.latitude
     })
@@ -118,6 +172,8 @@ def handle_file(message):
 
                 f.write(file.content)
                 decoded_barcode=decode(Image.open(dir_path+'/imgs/%s_%s.png' % (file_id, message.chat.id)))
+                bot.send_message(message.chat.id, u"Оберіть Опцію")
+
                 if not decoded_barcode:
                     bot.send_message(message.chat.id, u'Штрих код не знайдено, спробуйте ще раз')
                 else:
@@ -126,22 +182,20 @@ def handle_file(message):
                         if basket.chat_id == message.chat.id:
                             basket.counter += 1
                             basket.add(res)
+                            basket.add_barcode_to_list(str(int(decoded_barcode[0].data)))
 
                     tmp_list = [item.chat_id for item in basket_list]
                     if message.chat.id not in tmp_list:
                         tmp_basket = Basket(message.chat.id)
                         tmp_basket.counter += 1
                         tmp_basket.add(res)
+                        tmp_basket.add_barcode_to_list(str(int(decoded_barcode[0].data)))
                         basket_list.append(tmp_basket)
                     # time.sleep(5)
 
                     # print(basket_list)
                     mp.track(message.chat.id, 'Handle file')
-                             # , {
-                        # 'u_id': message.from_user.id,
-                        # 'u_name': message.from_user.first_name + ' ' + message.from_user.last_name,
-                        # 'barcode': str(int(decoded_barcode[0].data)),
-                    # })
+                    # bot.send_message(message.chat.id, u"Оберіть Опцію")
             os.remove(dir_path+'/imgs/%s_%s.png' % (file_id, message.chat.id))
     except Exception as err:
         logger.write_logs(handle_file.__name__, err)
@@ -149,24 +203,38 @@ def handle_file(message):
 @bot.message_handler(func=lambda message: u'Порівняти' == message.text)
 def compare_price(message):
     markup = types.ReplyKeyboardMarkup()
+
     # print(basket_list)
+
     markup.add(types.KeyboardButton(u'Порівняти ціну на товар'))
     bot.send_message(message.chat.id, u"Очікуйте результату", reply_markup=markup)
     time.sleep(5)
-    print(basket_list)
+
+    # print(basket_list)
+
     for item in basket_list:
         # print(item.chat_id)
-        print(message.chat.id)
+        # print(message.chat.id)
+
         if item.chat_id == message.chat.id:
             # print(item.basket_list)
-            tmp_result = item.get_result()
-            tmp_products = tmp_result[1]
-            tmp_prices = tmp_result[0]
-            # tmp = [i[17:-12] for i in tmp_products]
-            # print(tmp)
-            print(item.counter)
-            bot.send_message(message.chat.id, tmp_prices, reply_markup=get_update_markup('RESULT ID'))
+            # print(item.barcode_list)
+
+            longitude = location_message.location.longitude
+            latitude = location_message.location.latitude
+            location = str(longitude) + ',' + str(latitude)
+            # print(location)
+
+            r_id = set_result(message, location)
+            associate_brcd_res(r_id, item.barcode_list)
+            # print(r_id)
+            result = item.get_result()
+
+            # Add extra inline markup with id as result_id
+            bot.send_message(message.chat.id, result, reply_markup=get_update_markup(r_id))
             basket_list.remove(item)
+            # print(r_id)
+            # print(get_user_results(message))
 while True:
     bot.polling(none_stop=True)
 

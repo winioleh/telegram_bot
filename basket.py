@@ -5,10 +5,13 @@ class Basket:
         self.basket_list = []
         self.chat_id = chat_id
         self.counter = 0
+        self.barcode_list = []
 
     def incr_counter(self):
         self.counter += 1
 
+    def add_barcode_to_list(self, barcode):
+        self.barcode_list.append(barcode)
     def add(self, item):
         self.basket_list.append(item)
 
@@ -47,7 +50,7 @@ class Basket:
                 res_str += name + ' - ' + '%.2f' % price + '\n'
             else:
                 res_str += name + ' - ' + price + '\n'
-        return (res_str, products_names)
+        return res_str
     def clear_basket(self):
         self.basket_list = []
 

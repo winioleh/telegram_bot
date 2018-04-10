@@ -24,3 +24,28 @@ ERROR: [WinError 32] Процесс не может получить доступ к файлу, так как этот файл
 TIME: 2018-04-10 10:52:59.937773
 END FUNCTION
 
+FUNCTION: handle_start
+ERROR: send_message() got an unexpected keyword argument 'resize_keyboard'
+TIME: 2018-04-10 17:43:35.512121
+END FUNCTION
+
+FUNCTION: handle_start
+ERROR: send_message() got an unexpected keyword argument 'resize_keyboard'
+TIME: 2018-04-10 17:43:35.554304
+END FUNCTION
+
+FUNCTION: handle_start
+ERROR: send_message() got an unexpected keyword argument 'resize_keyboard'
+TIME: 2018-04-10 17:43:36.047231
+END FUNCTION
+
+FUNCTION: handle_start
+ERROR: send_message() got an unexpected keyword argument 'resize_keyboard'
+TIME: 2018-04-10 17:43:36.083300
+END FUNCTION
+
+FUNCTION: handle_start
+ERROR: send_message() got an unexpected keyword argument 'resize_keyboard'
+TIME: 2018-04-10 17:43:39.732397
+END FUNCTION
+
