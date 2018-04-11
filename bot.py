@@ -168,10 +168,10 @@ def handle_file(message):
             file = requests.get(
                 'https://api.telegram.org/file/bot{0}/{1}'.format(TOKEN, file_info.file_path))
 
-            with open(dir_path+'/imgs/%s_%s.png' % (file_id, message.chat.id), 'wb') as f:
+            with open(dir_path+'\imgs\%s_%s.png' % (file_id, message.chat.id), 'wb') as f:
 
                 f.write(file.content)
-                decoded_barcode=decode(Image.open(dir_path+'/imgs/%s_%s.png' % (file_id, message.chat.id)))
+                decoded_barcode=decode(Image.open(dir_path+'\imgs\%s_%s.png' % (file_id, message.chat.id)))
                 bot.send_message(message.chat.id, u"Оберіть Опцію")
 
                 if not decoded_barcode:
@@ -219,10 +219,28 @@ def compare_price(message):
         if item.chat_id == message.chat.id:
             # print(item.basket_list)
             # print(item.barcode_list)
+            try:
+                longitude = location_message.location.longitude
+                latitude = location_message.location.latitude
+                location = str(longitude) + ',' + str(latitude)
+                r_id = set_result(message, location)
+                associate_brcd_res(r_id, item.barcode_list)
+                # print(r_id)
+                result = item.get_result()
 
-            longitude = location_message.location.longitude
-            latitude = location_message.location.latitude
-            location = str(longitude) + ',' + str(latitude)
+                # Add extra inline markup with id as result_id
+                bot.send_message(message.chat.id, result, reply_markup=get_update_markup(r_id))
+            except:
+                longitude = 48.3212
+                latitude = 25.31312
+                location = str(longitude) + ',' + str(latitude)
+                r_id = set_result(message, location)
+                associate_brcd_res(r_id, item.barcode_list)
+                # print(r_id)
+                result = item.get_result()
+
+                # Add extra inline markup with id as result_id
+                bot.send_message(message.chat.id, result, reply_markup=get_update_markup(r_id))
             # print(location)
 
             r_id = set_result(message, location)
